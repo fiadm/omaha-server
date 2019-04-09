@@ -6,8 +6,9 @@ from celery import Celery
 
 from django.conf import settings
 
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'omaha_server.settings_prod')
+os.environ.setdefault('UWSGI_PROCESSES', '10')
+os.environ.setdefault('UWSGI_THREADS', '8')
 
 app = Celery('omaha_server')
 app.config_from_object('django.conf:settings')
