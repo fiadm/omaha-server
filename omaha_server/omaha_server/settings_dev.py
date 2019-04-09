@@ -1,4 +1,4 @@
 # coding: utf8
 
-from .settings_prod import *
+from .settings_default import *
 

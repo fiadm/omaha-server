@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/
 """
 
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "omaha_server.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "omaha_server.settings_prod")
 
 from django.core.wsgi import get_wsgi_application
 from raven.contrib.django.raven_compat.middleware.wsgi import Sentry
