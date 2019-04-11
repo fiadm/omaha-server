@@ -266,7 +266,7 @@ class Hw(models.Model):
 class Request(models.Model):
     os = models.ForeignKey(Os, null=True, blank=True)
     hw = models.ForeignKey(Hw, null=True, blank=True)
-    version = VersionField(help_text='Format: 255.255.65535.65535', number_bits=(8, 8, 16, 16))
+    version = VersionField(help_text='Format: 255.255.65535.65535', number_bits=(8, 8, 16, 16), null=True)
     ismachine = models.PositiveSmallIntegerField(null=True, blank=True)
     sessionid = models.CharField(max_length=40, null=True, blank=True)
     userid = models.CharField(max_length=40, null=True, blank=True)
