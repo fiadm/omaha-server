@@ -89,4 +89,4 @@ def parse_request(request):
 
 
 def get_channel(app):
-    return app.get('tag') or app.get('ap') or DEFAULT_CHANNEL
+    return app.get('tag') or DEFAULT_CHANNEL
