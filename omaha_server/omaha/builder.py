@@ -131,6 +131,21 @@ def get_version(app_id, platforms, channel, version, userid, date=None):
 
     return new_version
 
+def get_version_for_os(app_id, os, channel, version, userid, date=None):
+    platforms = get_platforms(os)
+    try:
+        version = get_version(app_id, platforms, channel, version, userid)
+    except Version.DoesNotExist:
+        # check fallback platforms, e.g. x86 for x64
+        platforms = get_platforms_fallback(os)
+        if platforms:
+            version = get_version(app_id, platforms, channel, version, userid)
+        else:
+            # no fallback platforms exists
+            raise Version.DoesNotExist
+
+    return version
+
 def get_platforms(os):
     platform = os.get('platform')
     arch = os.get('arch') # x86, x64, None
@@ -142,10 +157,19 @@ def get_platforms(os):
     else:
         return [platform] # just platform, like 'win' or 'mac'
 
+def get_platforms_fallback(os):
+    platform = os.get('platform')
+    arch = os.get('arch') # x86, x64, None
+
+    if arch == 'x64':
+        # fallback to x86 or default
+        return [platform, platform + '32'] # either 'win' or 'win32', or 'mac', or 'mac32'
+    else:
+        return [] # no fallback for x86 or None
+
 def on_app(apps_list, app, os, userid):
     app_id = app.get('appid')
     version = app.get('version')
-    platforms = get_platforms(os)
     channel = parser.get_channel(app)
     ping = bool(app.findall('ping'))
     events = reduce(on_event, app.findall('event'), [])
@@ -153,7 +177,7 @@ def on_app(apps_list, app, os, userid):
     updatecheck = app.findall('updatecheck')
 
     try:
-        version = get_version(app_id, platforms, channel, version, userid)
+        version = get_version_for_os(app_id, os, channel, version, userid)
     except Version.DoesNotExist:
         apps_list.append(
             build_app(updatecheck=Updatecheck_negative() if updatecheck else None))
