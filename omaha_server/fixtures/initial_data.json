@@ -3,7 +3,7 @@
     "fields": {
         "modified": "2014-11-06T09:50:08.368Z",
         "name": "win",
-        "verbose_name": "Windows",
+        "verbose_name": "Windows 32-bit",
         "created": "2014-11-06T09:50:08.356Z"
     },
     "model": "omaha.platform",
@@ -18,6 +18,26 @@
     },
     "model": "omaha.platform",
     "pk": 2
+},
+{
+    "fields": {
+        "modified": "2019-06-26T11:03:38.321Z",
+        "name": "win64",
+        "verbose_name": "Windows x64",
+        "created": "2019-06-26T11:03:38.321Z"
+    },
+    "model": "omaha.platform",
+    "pk": 3
+},
+{
+    "fields": {
+        "modified": "2019-06-26T11:03:38.321Z",
+        "name": "mac64",
+        "verbose_name": "Mac OS X x64",
+        "created": "2019-06-26T11:03:38.321Z"
+    },
+    "model": "omaha.platform",
+    "pk": 4
 },
 {
     "fields": {

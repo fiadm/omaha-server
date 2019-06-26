@@ -77,12 +77,12 @@ def is_new_user(version):
 
 
 @cached_as(Version, timeout=60)
-def _get_version(partialupdate, app_id, platform, channel, version, date=None):
+def _get_version(partialupdate, app_id, platforms, channel, version, date=None):
     date = date or now()
 
     qs = Version.objects.select_related('app')
     qs = qs.filter_by_enabled(app=app_id,
-                              platform__name=platform,
+                              platform__name__in=platforms,
                               channel__name=channel)
     qs = qs.filter(version__gt=version) if version else qs
     qs = qs.prefetch_related("actions", "partialupdate")
@@ -109,9 +109,9 @@ def _get_version(partialupdate, app_id, platform, channel, version, date=None):
     return new_version
 
 
-def get_version(app_id, platform, channel, version, userid, date=None):
+def get_version(app_id, platforms, channel, version, userid, date=None):
     try:
-        new_version = _get_version(True, app_id, platform, channel, version, date=date)
+        new_version = _get_version(True, app_id, platforms, channel, version, date=date)
 
         if not new_version:
             raise Version.DoesNotExist
@@ -127,15 +127,25 @@ def get_version(app_id, platform, channel, version, userid, date=None):
         if not (userid_int % int(100 / percent)) == 0:
             raise Version.DoesNotExist
     except Version.DoesNotExist:
-        new_version = _get_version(False, app_id, platform, channel, version, date=date)
+        new_version = _get_version(False, app_id, platforms, channel, version, date=date)
 
     return new_version
 
+def get_platforms(os):
+    platform = os.get('platform')
+    arch = os.get('arch') # x86, x64, None
+
+    if arch == 'x86':
+        return [platform, platform + '32'] # either 'win' or 'win32', or 'mac', or 'mac32'
+    elif arch == 'x64':
+        return [platform + '64'] # only 'win64' or 'mac64'
+    else:
+        return [platform] # just platform, like 'win' or 'mac'
 
 def on_app(apps_list, app, os, userid):
     app_id = app.get('appid')
     version = app.get('version')
-    platform = os.get('platform')
+    platforms = get_platforms(os)
     channel = parser.get_channel(app)
     ping = bool(app.findall('ping'))
     events = reduce(on_event, app.findall('event'), [])
@@ -143,7 +153,7 @@ def on_app(apps_list, app, os, userid):
     updatecheck = app.findall('updatecheck')
 
     try:
-        version = get_version(app_id, platform, channel, version, userid)
+        version = get_version(app_id, platforms, channel, version, userid)
     except Version.DoesNotExist:
         apps_list.append(
             build_app(updatecheck=Updatecheck_negative() if updatecheck else None))
